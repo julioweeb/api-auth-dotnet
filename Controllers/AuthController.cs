@@ -1,4 +1,4 @@
-﻿using api_auth.Application.DTOs;
+using api_auth.Application.DTOs;
 using api_auth.Data;
 using api_auth.Domain.Entities;
 using BCrypt.Net;
@@ -33,7 +33,7 @@ namespace api_auth.Controllers
                 .AnyAsync(u => u.Email == dto.Email);
 
             if (emailExists)
-                return BadRequest("Email já cadastrado");
+                return BadRequest(new { message = "Email já cadastrado" });
 
             var user = new User
             {
@@ -49,7 +49,7 @@ namespace api_auth.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok("Usuário criado com sucesso");
+            return Ok(new { message = "Usuário criado com sucesso" });
 
 
         }
@@ -61,12 +61,12 @@ namespace api_auth.Controllers
                 .FirstOrDefaultAsync(u => u.Email == dto.Email && u.IsActive);
 
             if (user == null)
-                return Unauthorized("Credenciais inválidas");
+                return Unauthorized(new { message = "Credenciais inválidas" });
 
             var validarPassword = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
 
             if (!validarPassword)
-                return Unauthorized("Credenciais inválidas");
+                return Unauthorized(new { message = "Credenciais inválidas" });
 
             var token = GenerateJwt(user);
 
